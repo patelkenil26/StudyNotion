@@ -24,9 +24,9 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: "https://study-notion-xi-ten.vercel.app/",
+    origin: "https://study-notion-xi-ten.vercel.app",
     // http://localhost:3000
-    // https://vercel.com/kenils-projects-af3a051b/study-notion
+    // https://study-notion-xi-ten.vercel.app/
     credentials: true,
   })
 );
