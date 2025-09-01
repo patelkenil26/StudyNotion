@@ -1,41 +1,41 @@
-import React, { useEffect, useState } from "react"
-import ReactStars from "react-rating-stars-component"
+import React, { useEffect, useState } from "react";
+import ReactStars from "react-rating-stars-component";
 // Import Swiper React components
-import { Swiper, SwiperSlide } from "swiper/react"
+import { Swiper, SwiperSlide } from "swiper/react";
 
 // Import Swiper styles
-import "swiper/css"
-import "swiper/css/free-mode"
-import "swiper/css/pagination"
-import "../../App.css"
+import "swiper/css";
+import "swiper/css/free-mode";
+import "swiper/css/pagination";
+import "../../App.css";
 // Icons
-import { FaStar } from "react-icons/fa"
+import { FaStar } from "react-icons/fa";
 // Import required modules
-import { Autoplay, FreeMode, Pagination } from "swiper/modules"
+import { Autoplay, FreeMode, Pagination } from "swiper/modules";
 
 // Get apiFunction and the endpoint
-import { apiConnector } from "../../services/apiconnector"
-import { ratingsEndpoints } from "../../services/apis"
+import { apiConnector } from "../../services/apiconnector";
+import { ratingsEndpoints } from "../../services/apis";
 
 function ReviewSlider() {
-  const [reviews, setReviews] = useState([])
-  const truncateWords = 15
+  const [reviews, setReviews] = useState([]);
+  const truncateWords = 15;
 
   useEffect(() => {
-    ;(async () => {
+    (async () => {
       const { data } = await apiConnector(
         "GET",
         ratingsEndpoints.REVIEWS_DETAILS_API
-      )
+      );
 
       // console.log("Rating And Review Call",data);
       if (data?.success) {
-        setReviews(data?.data)
+        setReviews(data?.data);
       }
 
       // console.log("set reviews",reviews)
-    })()
-  }, [])
+    })();
+  }, []);
 
   // console.log(reviews)
 
@@ -47,18 +47,34 @@ function ReviewSlider() {
           spaceBetween={35}
           loop={true}
           freeMode={true}
-          // loopFillGroupWithBlank={true}
-          // centeredSlides={true}  // Optional
           autoplay={{
             delay: 1000,
             disableOnInteraction: false,
           }}
           modules={[FreeMode, Pagination, Autoplay]}
+          breakpoints={{
+            0: {
+              slidesPerView: 1,
+              spaceBetween: 10,
+            },
+            640: {
+              slidesPerView: 2,
+              spaceBetween: 20,
+            },
+            1024: {
+              slidesPerView: 3,
+              spaceBetween: 25,
+            },
+            1280: {
+              slidesPerView: 4,
+              spaceBetween: 35,
+            },
+          }}
         >
           {reviews.map((review, i) => {
             return (
               <SwiperSlide key={i} className="">
-                <div className="flex flex-col gap-3  bg-richblack-800 p-3 text-[14px] text-richblack-25 ">
+                <div className="flex flex-col gap-3 bg-richblack-800 p-3 text-[14px] text-richblack-25 rounded-lg shadow-md">
                   <div className="flex items-center gap-4">
                     <img
                       src={
@@ -100,13 +116,13 @@ function ReviewSlider() {
                   </div>
                 </div>
               </SwiperSlide>
-            )
+            );
           })}
           {/* <SwiperSlide></SwiperSlide> */}
         </Swiper>
       </div>
     </div>
-  )
+  );
 }
 
-export default ReviewSlider
+export default ReviewSlider;
