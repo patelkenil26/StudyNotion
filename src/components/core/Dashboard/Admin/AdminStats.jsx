@@ -4,16 +4,12 @@ import { adminEndpoints } from "../../../../services/apis";
 import { apiConnector } from "../../../../services/apiconnector";
 import {
   ResponsiveContainer,
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   BarChart,
   Bar,
-  PieChart,
-  Pie,
   Cell,
   Legend,
   AreaChart,

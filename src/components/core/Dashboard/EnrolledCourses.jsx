@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react"
 import ProgressBar from "@ramonak/react-progress-bar"
-import { BiDotsVerticalRounded } from "react-icons/bi"
 import { useSelector,useDispatch } from "react-redux"
 import { useNavigate } from "react-router-dom"
 import  {resetCart} from "../../../slices/cartSlice" 
@@ -26,6 +25,7 @@ export default function EnrolledCourses() {
   useEffect(() => {
     dispatch(resetCart())
     getEnrolledCourses();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (

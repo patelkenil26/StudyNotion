@@ -1,7 +1,6 @@
 import { Table, Tbody, Td, Th, Thead, Tr } from "react-super-responsive-table";
 import "react-super-responsive-table/dist/SuperResponsiveTableStyle.css";
 import { formatDate } from "../../../../../services/formatDate";
-import { FaEye } from "react-icons/fa";
 
 export default function CourseTable({ courses, onView }) {
   return (

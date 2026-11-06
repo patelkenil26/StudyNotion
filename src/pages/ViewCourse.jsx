@@ -33,7 +33,7 @@ const ViewCourse = () => {
       }
     };
     setCourseSpecificData();
-  }, [courseId, token]);
+  }, [courseId, token, dispatch]);
 
   return (
     <>

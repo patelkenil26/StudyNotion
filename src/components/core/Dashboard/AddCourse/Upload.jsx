@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { FiUploadCloud } from "react-icons/fi";
-import { useSelector } from "react-redux";
 
 import "video-react/dist/video-react.css";
 import { Player } from "video-react";
@@ -16,9 +15,6 @@ export default function Upload({
   viewData = null,
   editData = null,
 }) {
-  // Accessing course from the Redux store using useSelector.
-  const { course } = useSelector((state) => state.course);
-
   // selectedFile: Tracks the file selected by the user.
   const [selectedFile, setSelectedFile] = useState(null);
 

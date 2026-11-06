@@ -2,13 +2,13 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import IconBtn from "../../../../common/IconBtn";
-import { resetCourseState, setCourse, setStep } from "../../../../../slices/courseSlice";
+import { resetCourseState, setStep } from "../../../../../slices/courseSlice";
 import { editCourseDetails } from "../../../../../services/operations/courseDetailsAPI";
 import { COURSE_STATUS } from "../../../../../utils/constants";
 import { useNavigate } from "react-router-dom";
 
 const PublishCourse = () => {
-  const { register, setValue, getValues, handleSubmit } = useForm();
+  const { register, getValues, handleSubmit } = useForm();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
