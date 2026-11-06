@@ -129,13 +129,14 @@ exports.getStudentDetails = async (req, res) => {
     // make a map of course progress { courseId: percentage }
     const progressMap = {};
     progressData.forEach((p) => {
+      if (!p.courseID) return;
       const courseIdStr = String(p.courseID._id);
 
       // total videos = sum of all subsections inside all sections
       let totalVideos = 0;
       if (Array.isArray(p.courseID.courseContent)) {
         p.courseID.courseContent.forEach((section) => {
-          if (Array.isArray(section.subSection)) {
+          if (Array.isArray(section?.subSection)) {
             totalVideos += section.subSection.length;
           }
         });
@@ -150,7 +151,7 @@ exports.getStudentDetails = async (req, res) => {
     });
 
     // final response courses data
-    const courseData = student.courses.map((course) => ({
+    const courseData = (student.courses || []).map((course) => ({
       _id: course._id,
       courseName: course.courseName || course.title,
       thumbnail: course.thumbnail || null,

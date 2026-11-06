@@ -123,24 +123,40 @@
 import { apiConnector } from '../apiconnector';
 import toast from 'react-hot-toast';
 import { studentEndpoints } from '../apis';
-// import { resetCart } from '../../slices/cartSlice';
+import { resetCart } from '../../slices/cartSlice';
 
 const { STRIPE_PAYMENT_SESSION } = studentEndpoints;
 
-export async function buyCourseStripe(token, courses, navigate,dispatch) {
+export async function buyCourseStripe(token, courses, arg3, arg4, arg5) {
+  // Support both (token, courses, navigate, dispatch) and (token, courses, user, navigate, dispatch)
+  const navigate = typeof arg3 === 'function' ? arg3 : (typeof arg4 === 'function' ? arg4 : null);
+  const dispatch = typeof arg4 === 'function' && typeof arg3 !== 'function' ? arg5 : arg4;
+
+  const toastId = toast.loading("Initiating Checkout...");
   try {
     const response = await apiConnector('POST', STRIPE_PAYMENT_SESSION, { courses }, {
       Authorization: `Bearer ${token}`,
     });
 
-    if (response.data.success) {
-      window.location.href = response.data.url;
-      
+    if (response?.data?.success && response?.data?.url) {
+      if (dispatch) {
+        dispatch(resetCart());
+      }
+      const targetUrl = response.data.url;
+      if (targetUrl.startsWith("http://") || targetUrl.startsWith("https://")) {
+        window.location.href = targetUrl;
+      } else if (navigate) {
+        navigate(targetUrl);
+      } else {
+        window.location.href = targetUrl;
+      }
     } else {
-      toast.error('Failed to create payment session.');
+      toast.error(response?.data?.message || 'Failed to create payment session.');
     }
   } catch (error) {
     console.error('Error initiating payment:', error);
-    toast.error('Error initiating payment.');
+    toast.error(error?.response?.data?.message || 'Error initiating payment.');
+  } finally {
+    toast.dismiss(toastId);
   }
 }

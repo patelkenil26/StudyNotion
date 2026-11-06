@@ -86,8 +86,7 @@ exports.signup = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create the user
-    let approved = "";
-    approved === "Instructor" ? (approved = false) : (approved = true);
+    const approved = accountType === "Instructor" ? true : true;
 
     // Create the Additional Profile For User
     const profileDetails = await Profile.create({
@@ -211,27 +210,25 @@ exports.sendotp = async (req, res) => {
     }
 
     // generate otp
-    var otp = otpGenerator.generate(6, {
+    let otp = otpGenerator.generate(6, {
       upperCaseAlphabets: false,
       lowerCaseAlphabets: false,
       specialChars: false,
     });
 
     // check otp unique or not
-    const result = await OTP.findOne({ otp: otp });
+    let result = await OTP.findOne({ otp: otp });
     console.log("Result is Generate OTP Func");
     console.log("OTP", otp);
     console.log("Result", result);
 
-    // if je otp generate karyo tena jevo same malse tya sudhi te generate karshe
-    // matalab k jya sudhi unique na made tya sudhi generate thase
     while (result) {
       otp = otpGenerator.generate(6, {
         upperCaseAlphabets: false,
         lowerCaseAlphabets: false,
         specialChars: false,
       });
-      // result = await OTP.findOne({otp:otp})
+      result = await OTP.findOne({ otp: otp });
     }
 
     // otpPayload ma email and otp pass kari didho

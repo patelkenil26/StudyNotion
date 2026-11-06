@@ -23,17 +23,17 @@ function ReviewSlider() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await apiConnector(
-        "GET",
-        ratingsEndpoints.REVIEWS_DETAILS_API
-      );
-
-      // console.log("Rating And Review Call",data);
-      if (data?.success) {
-        setReviews(data?.data);
+      try {
+        const response = await apiConnector(
+          "GET",
+          ratingsEndpoints.REVIEWS_DETAILS_API
+        );
+        if (response?.data?.success) {
+          setReviews(response.data.data || []);
+        }
+      } catch (err) {
+        console.error("Error fetching reviews:", err);
       }
-
-      // console.log("set reviews",reviews)
     })();
   }, []);
 
@@ -45,7 +45,7 @@ function ReviewSlider() {
         <Swiper
           slidesPerView={4}
           spaceBetween={35}
-          loop={true}
+          loop={reviews.length >= 4}
           freeMode={true}
           autoplay={{
             delay: 1000,
@@ -93,16 +93,16 @@ function ReviewSlider() {
                     </div>
                   </div>
                   <p className="font-medium text-richblack-25">
-                    {review?.review.split(" ").length > truncateWords
-                      ? `${review?.review
+                    {review?.review && review.review.split(" ").length > truncateWords
+                      ? `${review.review
                           .split(" ")
                           .slice(0, truncateWords)
                           .join(" ")} ...`
-                      : `${review?.review}`}
+                      : `${review?.review || ""}`}
                   </p>
                   <div className="flex items-center gap-2 ">
                     <h3 className="font-semibold text-yellow-100">
-                      {review.rating.toFixed(1)}
+                      {Number(review?.rating || 0).toFixed(1)}
                     </h3>
                     <ReactStars
                       count={5}

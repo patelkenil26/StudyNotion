@@ -75,7 +75,7 @@ exports.deleteAccount = async (req, res) => {
     for (const courseId of user.courses) {
       await Course.findByIdAndUpdate(
         courseId,
-        { $pull: { studentsEnroled: id } },
+        { $pull: { studentsEnrolled: id } },
         { new: true }
       );
     }
@@ -116,7 +116,13 @@ exports.getAllUserDetails = async (req, res) => {
 
 exports.updateDisplayPicture = async (req, res) => {
   try {
-    const displayPicture = req.files.displayPicture;
+    const displayPicture = req.files?.displayPicture;
+    if (!displayPicture) {
+      return res.status(400).json({
+        success: false,
+        message: "No image file uploaded",
+      });
+    }
     const userId = req.user.id;
     const image = await uploadImageToCloudinary(
       displayPicture,
@@ -159,29 +165,37 @@ exports.getEnrolledCourses = async (req, res) => {
         },
       })
       .exec();
+
+    if (!userDetails) {
+      return res.status(400).json({
+        success: false,
+        message: `Could not find user with id: ${userId}`,
+      });
+    }
+
     userDetails = userDetails.toObject();
     var SubsectionLength = 0;
-    for (var i = 0; i < userDetails.courses.length; i++) {
+    for (var i = 0; i < (userDetails.courses || []).length; i++) {
       let totalDurationInSeconds = 0;
       SubsectionLength = 0;
-      for (var j = 0; j < userDetails.courses[i].courseContent.length; j++) {
-        totalDurationInSeconds += userDetails.courses[i].courseContent[
-          j
-        ].subSection.reduce(
-          (acc, curr) => acc + parseInt(curr.timeDuration),
+      const courseContent = userDetails.courses[i].courseContent || [];
+      for (var j = 0; j < courseContent.length; j++) {
+        const subSections = courseContent[j].subSection || [];
+        totalDurationInSeconds += subSections.reduce(
+          (acc, curr) => acc + (parseInt(curr.timeDuration) || 0),
           0
         );
-        userDetails.courses[i].totalDuration = convertSecondsToDuration(
-          totalDurationInSeconds
-        );
-        SubsectionLength +=
-          userDetails.courses[i].courseContent[j].subSection.length;
+        SubsectionLength += subSections.length;
       }
+      userDetails.courses[i].totalDuration = convertSecondsToDuration(
+        totalDurationInSeconds
+      );
+
       let courseProgressCount = await CourseProgress.findOne({
         courseID: userDetails.courses[i]._id,
         userId: userId,
       });
-      courseProgressCount = courseProgressCount?.completedVideos.length;
+      const completedCount = courseProgressCount?.completedVideos?.length || 0;
       if (SubsectionLength === 0) {
         userDetails.courses[i].progressPercentage = 100;
       } else {
@@ -189,20 +203,14 @@ exports.getEnrolledCourses = async (req, res) => {
         const multiplier = Math.pow(10, 2);
         userDetails.courses[i].progressPercentage =
           Math.round(
-            (courseProgressCount / SubsectionLength) * 100 * multiplier
+            (completedCount / SubsectionLength) * 100 * multiplier
           ) / multiplier;
       }
     }
 
-    if (!userDetails) {
-      return res.status(400).json({
-        success: false,
-        message: `Could not find user with id: ${userDetails}`,
-      });
-    }
     return res.status(200).json({
       success: true,
-      data: userDetails.courses,
+      data: userDetails.courses || [],
     });
   } catch (error) {
     return res.status(500).json({

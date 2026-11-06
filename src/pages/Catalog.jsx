@@ -20,10 +20,19 @@ const Catalog = () => {
     //Fetch all categories
     useEffect(()=> {
         const getCategories = async() => {
-            const res = await apiConnector("GET", categories.CATEGORIES_API);
-            const category_id = 
-            res?.data?.data?.filter((ct) => ct.name.split(" ").join("-").toLowerCase() === catalogName)[0]._id;
-            setCategoryId(category_id);
+            try {
+                const res = await apiConnector("GET", categories.CATEGORIES_API);
+                const decodedCatalog = decodeURIComponent(catalogName || "").split(" ").join("-").toLowerCase();
+                const matchedCategory = res?.data?.data?.find(
+                  (ct) => ct.name.split(" ").join("-").toLowerCase() === decodedCatalog ||
+                          ct.name.toLowerCase() === decodedCatalog
+                );
+                if (matchedCategory) {
+                  setCategoryId(matchedCategory._id);
+                }
+            } catch (err) {
+                console.error("Error fetching categories for catalog:", err);
+            }
         }
         getCategories();
     },[catalogName]);

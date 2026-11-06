@@ -31,17 +31,16 @@ const VideoDetails = () => {
       if (!courseId && !sectionId && !subSectionId) {
         navigate(`/dashboard/enrolled-courses`)
       } else {
-        // console.log("courseSectionData", courseSectionData)
         const filteredData = courseSectionData.filter(
           (course) => course._id === sectionId
         )
-        // console.log("filteredData", filteredData)
-        const filteredVideoData = filteredData?.[0]?.subSection.filter(
+        const filteredVideoData = filteredData?.[0]?.subSection?.filter(
           (data) => data._id === subSectionId
         )
-        // console.log("filteredVideoData", filteredVideoData)
-        setVideoData(filteredVideoData[0])
-        setPreviewSource(courseEntireData.thumbnail)
+        if (filteredVideoData && filteredVideoData.length > 0) {
+          setVideoData(filteredVideoData[0])
+        }
+        setPreviewSource(courseEntireData?.thumbnail || "")
         setVideoEnded(false)
       }
     })()
@@ -52,10 +51,12 @@ const VideoDetails = () => {
     const currentSectionIndx = courseSectionData.findIndex(
       (data) => data._id === sectionId
     )
+    if (currentSectionIndx === -1 || !courseSectionData[currentSectionIndx]?.subSection) return false
 
     const currentSubSectionIndx = courseSectionData[
       currentSectionIndx
     ].subSection.findIndex((data) => data._id === subSectionId)
+    if (currentSubSectionIndx === -1) return false
 
     if (currentSectionIndx === 0 && currentSubSectionIndx === 0) {
       return true
@@ -66,11 +67,10 @@ const VideoDetails = () => {
 
   // go to the next video
   const goToNextVideo = () => {
-    // console.log(courseSectionData)
-
     const currentSectionIndx = courseSectionData.findIndex(
       (data) => data._id === sectionId
     )
+    if (currentSectionIndx === -1 || !courseSectionData[currentSectionIndx]?.subSection) return
 
     const noOfSubsections =
       courseSectionData[currentSectionIndx].subSection.length
@@ -78,24 +78,22 @@ const VideoDetails = () => {
     const currentSubSectionIndx = courseSectionData[
       currentSectionIndx
     ].subSection.findIndex((data) => data._id === subSectionId)
-
-    // console.log("no of subsections", noOfSubsections)
+    if (currentSubSectionIndx === -1) return
 
     if (currentSubSectionIndx !== noOfSubsections - 1) {
-      const nextSubSectionId =
-        courseSectionData[currentSectionIndx].subSection[
-          currentSubSectionIndx + 1
-        ]._id
-      navigate(
-        `/view-course/${courseId}/section/${sectionId}/sub-section/${nextSubSectionId}`
-      )
+      const nextSubSection = courseSectionData[currentSectionIndx].subSection[currentSubSectionIndx + 1]
+      if (nextSubSection?._id) {
+        navigate(
+          `/view-course/${courseId}/section/${sectionId}/sub-section/${nextSubSection._id}`
+        )
+      }
     } else {
-      const nextSectionId = courseSectionData[currentSectionIndx + 1]._id
-      const nextSubSectionId =
-        courseSectionData[currentSectionIndx + 1].subSection[0]._id
-      navigate(
-        `/view-course/${courseId}/section/${nextSectionId}/sub-section/${nextSubSectionId}`
-      )
+      const nextSection = courseSectionData[currentSectionIndx + 1]
+      if (nextSection && nextSection.subSection && nextSection.subSection.length > 0) {
+        navigate(
+          `/view-course/${courseId}/section/${nextSection._id}/sub-section/${nextSection.subSection[0]._id}`
+        )
+      }
     }
   }
 
@@ -104,6 +102,7 @@ const VideoDetails = () => {
     const currentSectionIndx = courseSectionData.findIndex(
       (data) => data._id === sectionId
     )
+    if (currentSectionIndx === -1 || !courseSectionData[currentSectionIndx]?.subSection) return false
 
     const noOfSubsections =
       courseSectionData[currentSectionIndx].subSection.length
@@ -111,6 +110,7 @@ const VideoDetails = () => {
     const currentSubSectionIndx = courseSectionData[
       currentSectionIndx
     ].subSection.findIndex((data) => data._id === subSectionId)
+    if (currentSubSectionIndx === -1) return false
 
     if (
       currentSectionIndx === courseSectionData.length - 1 &&
@@ -124,35 +124,31 @@ const VideoDetails = () => {
 
   // go to the previous video
   const goToPrevVideo = () => {
-    // console.log(courseSectionData)
-
     const currentSectionIndx = courseSectionData.findIndex(
       (data) => data._id === sectionId
     )
+    if (currentSectionIndx === -1 || !courseSectionData[currentSectionIndx]?.subSection) return
 
     const currentSubSectionIndx = courseSectionData[
       currentSectionIndx
     ].subSection.findIndex((data) => data._id === subSectionId)
+    if (currentSubSectionIndx === -1) return
 
     if (currentSubSectionIndx !== 0) {
-      const prevSubSectionId =
-        courseSectionData[currentSectionIndx].subSection[
-          currentSubSectionIndx - 1
-        ]._id
-      navigate(
-        `/view-course/${courseId}/section/${sectionId}/sub-section/${prevSubSectionId}`
-      )
+      const prevSubSection = courseSectionData[currentSectionIndx].subSection[currentSubSectionIndx - 1]
+      if (prevSubSection?._id) {
+        navigate(
+          `/view-course/${courseId}/section/${sectionId}/sub-section/${prevSubSection._id}`
+        )
+      }
     } else {
-      const prevSectionId = courseSectionData[currentSectionIndx - 1]._id
-      const prevSubSectionLength =
-        courseSectionData[currentSectionIndx - 1].subSection.length
-      const prevSubSectionId =
-        courseSectionData[currentSectionIndx - 1].subSection[
-          prevSubSectionLength - 1
-        ]._id
-      navigate(
-        `/view-course/${courseId}/section/${prevSectionId}/sub-section/${prevSubSectionId}`
-      )
+      const prevSection = courseSectionData[currentSectionIndx - 1]
+      if (prevSection && prevSection.subSection && prevSection.subSection.length > 0) {
+        const prevSubSectionId = prevSection.subSection[prevSection.subSection.length - 1]._id
+        navigate(
+          `/view-course/${courseId}/section/${prevSection._id}/sub-section/${prevSubSectionId}`
+        )
+      }
     }
   }
 

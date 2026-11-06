@@ -14,6 +14,9 @@ import { formatDate } from "../services/formatDate";
 import { fetchCourseDetails } from "../services/operations/courseDetailsAPI";
 // import { buyCourse } from "../services/operations/studentFeaturesAPI";
 import { buyCourseStripe } from "../services/operations/studentFeaturesAPI";
+import { addToCart } from "../slices/cartSlice";
+import { ACCOUNT_TYPE } from "../utils/constants";
+import toast from "react-hot-toast";
 
 import GetAvgRating from "../utils/avgRating";
 import Error from "./Error";
@@ -72,15 +75,15 @@ function CourseDetails() {
     }
   }, [response]);
 
+  if (error) {
+    return <Error message={error} />;
+  }
   if (loading || !response) {
     return (
       <div className="grid min-h-[calc(100vh-3.5rem)] place-items-center">
         <div className="spinner"></div>
       </div>
     );
-  }
-  if (error) {
-    return <Error message={error} />;
   }
 
   const {
@@ -102,6 +105,10 @@ function CourseDetails() {
   // console.log("In this course student enrolled no: ",studentsEnrolled)
 
   const handleBuyCourse = () => {
+    if (user && (user?.accountType === ACCOUNT_TYPE.INSTRUCTOR || user?.accountType === ACCOUNT_TYPE.ADMIN)) {
+      toast.error("Instructors and Admins cannot purchase courses.");
+      return;
+    }
     if (token) {
       buyCourseStripe(token, [courseId], user, navigate, dispatch);
       return;
@@ -109,6 +116,25 @@ function CourseDetails() {
     setConfirmationModal({
       text1: "You are not logged in!",
       text2: "Please login to Purchase Course.",
+      btn1Text: "Login",
+      btn2Text: "Cancel",
+      btn1Handler: () => navigate("/login"),
+      btn2Handler: () => setConfirmationModal(null),
+    });
+  };
+
+  const handleAddToCart = () => {
+    if (user && (user?.accountType === ACCOUNT_TYPE.INSTRUCTOR || user?.accountType === ACCOUNT_TYPE.ADMIN)) {
+      toast.error("Instructors and Admins cannot purchase courses.");
+      return;
+    }
+    if (token) {
+      dispatch(addToCart(response?.data?.courseDetails));
+      return;
+    }
+    setConfirmationModal({
+      text1: "You are not logged in!",
+      text2: "Please login to add to cart.",
       btn1Text: "Login",
       btn2Text: "Cancel",
       btn1Handler: () => navigate("/login"),
@@ -175,10 +201,27 @@ function CourseDetails() {
               <p className="space-x-3 pb-4 text-3xl font-semibold text-richblack-5">
                 Rs. {price}
               </p>
-              <button className="yellowButton" onClick={handleBuyCourse}>
-                Buy Now
-              </button>
-              <button className="blackButton">Add to Cart</button>
+              {user?.accountType !== ACCOUNT_TYPE.ADMIN && (
+                <>
+                  <button
+                    className="yellowButton"
+                    onClick={
+                      user && studentsEnrolled?.includes(user?._id)
+                        ? () => navigate("/dashboard/enrolled-courses")
+                        : handleBuyCourse
+                    }
+                  >
+                    {user && studentsEnrolled?.includes(user?._id)
+                      ? "Go To Course"
+                      : "Buy Now"}
+                  </button>
+                  {(!user || !studentsEnrolled?.includes(user?._id)) && (
+                    <button className="blackButton" onClick={handleAddToCart}>
+                      Add to Cart
+                    </button>
+                  )}
+                </>
+              )}
             </div>
           </div>
           {/* Courses Card */}

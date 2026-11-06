@@ -102,6 +102,7 @@ function App() {
           }
         >
           <Route path="dashboard/my-profile" element={<MyProfile />} />
+          <Route path="dashboard/settings" element={<Settings />} />
           <Route path="dashboard/Settings" element={<Settings />} />
 
           {user?.accountType === ACCOUNT_TYPE.ADMIN && (

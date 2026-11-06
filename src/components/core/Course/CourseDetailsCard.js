@@ -28,8 +28,8 @@ function CourseDetailsCard({ course, setConfirmationModal, handleBuyCourse }) {
   }
 
   const handleAddToCart = () => {
-    if (user && user?.accountType === ACCOUNT_TYPE.INSTRUCTOR) {
-      toast.error("You are an Instructor. You can't buy a course.")
+    if (user && (user?.accountType === ACCOUNT_TYPE.INSTRUCTOR || user?.accountType === ACCOUNT_TYPE.ADMIN)) {
+      toast.error("Instructors and Admins cannot purchase courses.")
       return
     }
     if (token) {
@@ -46,7 +46,7 @@ function CourseDetailsCard({ course, setConfirmationModal, handleBuyCourse }) {
     })
   }
 
-  // console.log("Student already enrolled ", course?.studentsEnroled, user?._id)
+  const isEnrolled = user && course?.studentsEnrolled && Array.isArray(course.studentsEnrolled) && course.studentsEnrolled.includes(user?._id)
 
   return (
     <>
@@ -71,16 +71,16 @@ function CourseDetailsCard({ course, setConfirmationModal, handleBuyCourse }) {
             <button
               className="yellowButton"
               onClick={
-                user && course?.studentsEnrolled.includes(user?._id)
+                isEnrolled
                   ? () => navigate("/dashboard/enrolled-courses")
                   : handleBuyCourse
               }
             >
-              {user && course?.studentsEnrolled.includes(user?._id)
+              {isEnrolled
                 ? "Go To Course"
                 : "Buy Now"}
             </button>
-            {(!user || !course?.studentsEnrolled.includes(user?._id)) && (
+            {!isEnrolled && (
               <button onClick={handleAddToCart} className="blackButton">
                 Add to Cart
               </button>

@@ -74,16 +74,17 @@ export default function CourseInformationForm() {
   // aani need onSubmit function ma padse
   const isFormUpdated = () => {
     const currentValues = getValues()
-    // console.log("changes after editing form values:", currentValues)
+    const currentCat = typeof currentValues.courseCategory === "object" ? currentValues.courseCategory?._id : currentValues.courseCategory
+    const courseCat = typeof course?.category === "object" ? course?.category?._id : course?.category
+
     if (
-      // currentValue and course.courseName banne different matalab form update thayu chhe -->if thayu hase to true 
       currentValues.courseTitle !== course.courseName ||
       currentValues.courseShortDesc !== course.courseDescription ||
       currentValues.coursePrice !== course.price ||
-      currentValues.courseTags.toString() !== course.tag.toString() ||
+      currentValues.courseTags?.toString() !== course.tag?.toString() ||
       currentValues.courseBenefits !== course.whatYouWillLearn ||
-      currentValues.courseCategory._id !== course.category._id ||
-      currentValues.courseRequirements.toString() !== course.instructions.toString() ||
+      currentCat !== courseCat ||
+      currentValues.courseRequirements?.toString() !== course.instructions?.toString() ||
       currentValues.courseImage !== course.thumbnail
     ) {
       return true
@@ -100,22 +101,14 @@ export default function CourseInformationForm() {
 
     // ************************************when you are in edit mode *************************************************
     if (editCourse) {
-      // const currentValues = getValues()
-      // console.log("changes after editing form values:", currentValues)
-      // console.log("now course:", course)
-      // console.log("Has Form Changed:", isFormUpdated())
       if (isFormUpdated()) {
         const currentValues = getValues()
+        const currentCat = typeof currentValues.courseCategory === "object" ? currentValues.courseCategory?._id : currentValues.courseCategory
+        const courseCat = typeof course?.category === "object" ? course?.category?._id : course?.category
 
-        //1. A set of key-value pairs representing form fields and their values.
-        //2. It's useful when you want to send form data, including file uploads, 
         const formData = new FormData()
-        // console.log(data)
-
-        // 1. akha form no data append kari didho 
         formData.append("courseId", course._id)
 
-        // 2. have aej data append karishu je data update thayo hase 
         if (currentValues.courseTitle !== course.courseName) {
           formData.append("courseName", data.courseTitle)
         }
@@ -125,18 +118,18 @@ export default function CourseInformationForm() {
         if (currentValues.coursePrice !== course.price) {
           formData.append("price", data.coursePrice)
         }
-        if (currentValues.courseTags.toString() !== course.tag.toString()) {
+        if (currentValues.courseTags?.toString() !== course.tag?.toString()) {
           formData.append("tag", JSON.stringify(data.courseTags))
         }
         if (currentValues.courseBenefits !== course.whatYouWillLearn) {
           formData.append("whatYouWillLearn", data.courseBenefits)
         }
-        if (currentValues.courseCategory._id !== course.category._id) {
+        if (currentCat !== courseCat) {
           formData.append("category", data.courseCategory)
         }
         if (
-          currentValues.courseRequirements.toString() !==
-          course.instructions.toString()
+          currentValues.courseRequirements?.toString() !==
+          course.instructions?.toString()
         ) {
           formData.append(
             "instructions",

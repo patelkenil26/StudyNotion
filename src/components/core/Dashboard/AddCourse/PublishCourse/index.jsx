@@ -5,18 +5,19 @@ import IconBtn from "../../../../common/IconBtn";
 import { resetCourseState, setCourse, setStep } from "../../../../../slices/courseSlice";
 import { editCourseDetails } from "../../../../../services/operations/courseDetailsAPI";
 import { COURSE_STATUS } from "../../../../../utils/constants";
-import { Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const PublishCourse = () => {
   const { register, setValue, getValues, handleSubmit } = useForm();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const { token } = useSelector((state) => state.auth);
   const { course } = useSelector((state) => state.course);
 
   const goToCourses = () => {
     dispatch(resetCourseState())
-    Navigate("/dashboard/my-courses")
+    navigate("/dashboard/my-courses")
   }
 
   const handleCoursePublish = async () => {

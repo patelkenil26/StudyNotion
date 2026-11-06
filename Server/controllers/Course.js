@@ -24,14 +24,21 @@ exports.createCourse = async (req, res) => {
       instructions: _instructions,
     } = req.body
     // Get thumbnail image from request files
-    const thumbnail = req.files.thumbnailImage
+    const thumbnail = req.files?.thumbnailImage
 
     // Convert the tag and instructions from stringified Array to Array
-    const tag = JSON.parse(_tag)
-    const instructions = JSON.parse(_instructions)
-
-    console.log("tag", tag)
-    console.log("instructions", instructions)
+    let tag = []
+    let instructions = []
+    try {
+      tag = typeof _tag === "string" ? JSON.parse(_tag) : _tag || []
+    } catch (e) {
+      tag = _tag ? [_tag] : []
+    }
+    try {
+      instructions = typeof _instructions === "string" ? JSON.parse(_instructions) : _instructions || []
+    } catch (e) {
+      instructions = _instructions ? [_instructions] : []
+    }
 
     // Check if any of the required fields are missing
     if (
@@ -53,11 +60,9 @@ exports.createCourse = async (req, res) => {
       status = "Draft"
     }
     // Check if the user is an instructor
-    const instructorDetails = await User.findById(userId, {
-      accountType: "Instructor",
-    })
+    const instructorDetails = await User.findById(userId)
 
-    if (!instructorDetails) {
+    if (!instructorDetails || instructorDetails.accountType !== "Instructor") {
       return res.status(404).json({
         success: false,
         message: "Instructor Details Not Found",
@@ -321,7 +326,7 @@ exports.getCourseDetails = async (req, res) => {
     let totalDurationInSeconds = 0
     courseDetails.courseContent.forEach((content) => {
       content.subSection.forEach((subSection) => {
-        const timeDurationInSeconds = parseInt(subSection.timeDuration)
+        const timeDurationInSeconds = parseInt(subSection.timeDuration) || 0
         totalDurationInSeconds += timeDurationInSeconds
       })
     })
@@ -389,7 +394,7 @@ exports.getFullCourseDetails = async (req, res) => {
     let totalDurationInSeconds = 0
     courseDetails.courseContent.forEach((content) => {
       content.subSection.forEach((subSection) => {
-        const timeDurationInSeconds = parseInt(subSection.timeDuration)
+        const timeDurationInSeconds = parseInt(subSection.timeDuration) || 0
         totalDurationInSeconds += timeDurationInSeconds
       })
     })
@@ -476,6 +481,23 @@ exports.deleteCourse = async (req, res) => {
 
     // Delete the course
     await Course.findByIdAndDelete(courseId)
+
+    // Remove course from Category
+    if (course.category) {
+      await Category.findByIdAndUpdate(course.category, {
+        $pull: { courses: courseId },
+      })
+    }
+
+    // Remove course from Instructor's courses list
+    if (course.instructor) {
+      await User.findByIdAndUpdate(course.instructor, {
+        $pull: { courses: courseId },
+      })
+    }
+
+    // Delete associated course progress
+    await CourseProgress.deleteMany({ courseID: courseId })
 
     return res.status(200).json({
       success: true,

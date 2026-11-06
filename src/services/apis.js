@@ -1,4 +1,4 @@
-const BASE_URL = process.env.REACT_APP_BASE_URL;
+const BASE_URL = process.env.REACT_APP_BASE_URL || "http://localhost:4000/api/v1";
 
 // AUTH ENDPOINTS
 export const endpoints = {
@@ -82,6 +82,7 @@ export const settingsEndpoints = {
 export const adminEndpoints = {
   //  DASHBOARD STATS
   GET_ADMIN_STATS_API: BASE_URL + "/admin/stats",
+  GET_MONTHLY_ENROLLMENTS_API: BASE_URL + "/admin/enrollments",
   GET_MONTHLLY_ENROLLMENTS_API: BASE_URL + "/admin/enrollments",
   GET_TOP_COURSES_API: BASE_URL + "/admin/top-courses",
   GET_TOP_INSTRUCTORS_API: BASE_URL + "/admin/top-instructors",

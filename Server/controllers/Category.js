@@ -69,29 +69,25 @@ exports.categoryPageDetails = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Category not found" });
     }
-    // Handle the case when there are no courses
-    if (selectedCategory.courses.length === 0) {
-      console.log("No courses found for the selected category.");
-      return res.status(404).json({
-        success: false,
-        message: "No courses found for the selected category.",
-      });
-    }
 
     // Get courses for other categories
     const categoriesExceptSelected = await Category.find({
       _id: { $ne: categoryId },
     });
-    let differentCategory = await Category.findOne(
-      categoriesExceptSelected[getRandomInt(categoriesExceptSelected.length)]
-        ._id
-    )
-      .populate({
-        path: "courses",
-        match: { status: "Published" },
-      })
-      .exec();
-    //console.log("Different COURSE", differentCategory)
+    let differentCategory = null;
+    if (categoriesExceptSelected && categoriesExceptSelected.length > 0) {
+      const randomIdx = getRandomInt(categoriesExceptSelected.length);
+      const chosenCat = categoriesExceptSelected[randomIdx];
+      if (chosenCat && chosenCat._id) {
+        differentCategory = await Category.findOne({ _id: chosenCat._id })
+          .populate({
+            path: "courses",
+            match: { status: "Published" },
+          })
+          .exec();
+      }
+    }
+
     // Get top-selling courses across all categories
     const allCategories = await Category.find()
       .populate({
@@ -102,12 +98,12 @@ exports.categoryPageDetails = async (req, res) => {
         },
       })
       .exec();
-    const allCourses = allCategories.flatMap((category) => category.courses);
+    const allCourses = allCategories.flatMap((category) => category.courses || []);
     const mostSellingCourses = allCourses
-      .sort((a, b) => b.sold - a.sold)
+      .sort((a, b) => (b.studentsEnrolled?.length || 0) - (a.studentsEnrolled?.length || 0))
       .slice(0, 10);
-    // console.log("mostSellingCourses COURSE", mostSellingCourses)
-    res.status(200).json({
+
+    return res.status(200).json({
       success: true,
       data: {
         selectedCategory,

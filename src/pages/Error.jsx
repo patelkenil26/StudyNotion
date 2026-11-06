@@ -1,9 +1,11 @@
 import React from 'react'
 
-const Error = () => {
+const Error = ({ message }) => {
   return (
-    <div className='flex items-center justify-center text-3xl text-white'>
-       Error - 404  Not Found 
+    <div className='flex min-h-[calc(100vh-3.5rem)] items-center justify-center text-center px-4'>
+       <div className='text-3xl text-white'>
+         {message || "Error - 404 Not Found"}
+       </div>
     </div>
   )
 }

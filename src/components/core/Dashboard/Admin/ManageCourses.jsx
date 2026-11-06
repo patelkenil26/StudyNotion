@@ -24,7 +24,7 @@ export default function ManageCourses() {
   // 🔹 Delete Course
   const handleDelete = async (courseId) => {
     setLoading(true);
-    await deleteCourse({ courseId }, token);
+    await deleteCourse(courseId, token);
     const res = await getAllCourses(token);
     if (res?.success) setCourses(res.data);
     setLoading(false);

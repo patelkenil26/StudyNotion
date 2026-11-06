@@ -81,13 +81,12 @@ export default function CoursesTable({ courses, setCourses }) {
                       {course.courseName}
                     </p>
                     <p className="text-xs text-richblack-300 mt-1">
-                      {course.courseDescription.split(" ").length >
-                      TRUNCATE_LENGTH
+                      {course?.courseDescription && course.courseDescription.split(" ").length > TRUNCATE_LENGTH
                         ? course.courseDescription
                             .split(" ")
                             .slice(0, TRUNCATE_LENGTH)
                             .join(" ") + "..."
-                        : course.courseDescription}
+                        : course?.courseDescription || ""}
                     </p>
                     <p className="text-[11px] md:text-[12px] text-white mt-1">
                       Created: {formatDate(course.createdAt)}

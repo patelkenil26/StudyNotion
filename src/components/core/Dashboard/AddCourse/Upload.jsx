@@ -58,14 +58,14 @@ export default function Upload({
   };
 
   useEffect(() => {
-    register(name, { required: true });
+    register(name, { required: !editData && !viewData });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [register]);
+  }, [register, editData, viewData]);
 
   useEffect(() => {
-    setValue(name, selectedFile);
+    setValue(name, selectedFile || editData || null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedFile, setValue]);
+  }, [selectedFile, setValue, editData]);
 
 
 //Drag-and-Drop Area:

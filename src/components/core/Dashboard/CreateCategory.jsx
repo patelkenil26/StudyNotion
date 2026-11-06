@@ -207,9 +207,7 @@ export default function CreateCategory() {
                 {/* Right side → buttons */}
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full md:w-auto">
                   <Link
-                    to={`/catalog/${encodeURIComponent(
-                      cat.name
-                    ).toLowerCase()}`}
+                    to={`/catalog/${cat.name.split(" ").join("-").toLowerCase()}`}
                     className="w-full sm:w-auto px-4 py-2 text-center bg-yellow-50 text-black rounded font-semibold hover:bg-yellow-200 transition text-sm sm:text-base"
                   >
                     View Courses

@@ -73,10 +73,12 @@ exports.getMonthlyEnrollments = async (req, res) => {
 // get top 5 courses
 exports.getTopCourses = async (req, res) => {
   try {
-    const topCourses = await Course.find()
-      .sort({ "studentsEnrolled.length": -1 })
-      .limit(5)
+    const courses = await Course.find()
       .populate("instructor", "firstName lastName email");
+
+    const topCourses = courses
+      .sort((a, b) => (b.studentsEnrolled?.length || 0) - (a.studentsEnrolled?.length || 0))
+      .slice(0, 5);
 
     console.log("TOP COURSES..................", topCourses);
 
@@ -87,7 +89,7 @@ exports.getTopCourses = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      mesaage: error.mesaage,
+      message: error.message,
     });
   }
 };
@@ -110,9 +112,9 @@ exports.getTopInstructors = async (req, res) => {
           totalStudents: {
             $sum: {
               $map: {
-                input: "$courses",
+                input: { $ifNull: ["$courses", []] },
                 as: "c",
-                in: { $size: "$$c.studentsEnrolled" },
+                in: { $size: { $ifNull: ["$$c.studentsEnrolled", []] } },
               },
             },
           },
@@ -131,7 +133,7 @@ exports.getTopInstructors = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: error.mesaage,
+      message: error.message,
     });
   }
 };
@@ -153,7 +155,7 @@ exports.getRecentCourses = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: error.mesaage,
+      message: error.message,
     });
   }
 };
@@ -174,7 +176,7 @@ exports.getNewStudents = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: error.mesaage,
+      message: error.message,
     });
   }
 };

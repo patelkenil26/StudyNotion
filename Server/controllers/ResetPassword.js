@@ -32,7 +32,8 @@ exports.resetPasswordToken = async (req, res) => {
 		console.log("DETAILS", updatedDetails);
 
 		// create url 
-		const url = `http://localhost:3000/update-password/${token}`;
+		const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
+		const url = `${clientUrl}/update-password/${token}`;
 
 		// send email containing the url
 		await mailSender(
@@ -82,7 +83,7 @@ exports.resetPassword = async (req, res) => {
 		const encryptedPassword = await bcrypt.hash(password, 10);
 		await User.findOneAndUpdate(
 			{ token: token },
-			{ password: encryptedPassword },
+			{ password: encryptedPassword, token: null, resetPasswordExpires: null },
 			{ new: true }
 		);
 		res.json({

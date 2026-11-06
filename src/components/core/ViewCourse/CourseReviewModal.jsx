@@ -6,6 +6,7 @@ import { useSelector } from "react-redux"
 
 import { createRating } from "../../../services/operations/courseDetailsAPI"
 import IconBtn from "../../common/IconBtn"
+import { toast } from "react-hot-toast"
 
 export default function CourseReviewModal({ setReviewModal }) {
   const { user } = useSelector((state) => state.profile)
@@ -31,6 +32,10 @@ export default function CourseReviewModal({ setReviewModal }) {
   }
 
   const onSubmit = async (data) => {
+    if (!data.courseRating || data.courseRating === 0) {
+      toast.error("Please add a star rating")
+      return
+    }
     await createRating(
       {
         courseId: courseEntireData._id,

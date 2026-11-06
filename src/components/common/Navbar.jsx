@@ -30,9 +30,10 @@ function Navbar() {
       setLoading(true)
       try {
         const res = await apiConnector("GET", categories.CATEGORIES_API)
-        setSubLinks(res.data.data)
+        setSubLinks(res?.data?.data || [])
       } catch (error) {
         console.log("Could not fetch Categories.", error)
+        setSubLinks([])
       }
       setLoading(false)
     })()
@@ -110,7 +111,7 @@ function Navbar() {
 
         {/* Desktop Buttons */}
         <div className="hidden items-center gap-x-4 md:flex">
-          {user && user?.accountType !== ACCOUNT_TYPE.INSTRUCTOR && (
+          {user && user?.accountType === ACCOUNT_TYPE.STUDENT && (
             <Link to="/dashboard/cart" className="relative">
               <AiOutlineShoppingCart className="text-2xl text-richblack-100" />
               {totalItems > 0 && (

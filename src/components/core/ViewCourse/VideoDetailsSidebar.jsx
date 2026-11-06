@@ -86,7 +86,7 @@ const VideoDetailsSidebar = ({setReviewModal}) => {
                   </span> */}
                   <span
                     className={`${
-                      activeStatus === course?.sectionName
+                      activeStatus === course?._id
                         ? "rotate-0"
                         : "rotate-180"
                     } transition-all duration-500`}
